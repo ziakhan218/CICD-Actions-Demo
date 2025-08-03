@@ -1,3 +1,18 @@
+name: Deploy Client
+
+on:
+  push:
+    paths:
+      - 'client/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -5,6 +20,6 @@
         username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          cd ~/client     # or wherever your app is
+          cd ~/client
           docker-compose down || true
           docker-compose up --build -d
