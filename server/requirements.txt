@@ -1,1 +1,2 @@
 echo "# Triggering server deploy" >> server.py
+echo "# Triggering server deploy" >> server.py
