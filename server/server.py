@@ -1,24 +1,21 @@
-import socket, hashlib, os
+from flask import Flask
+from prometheus_client import Counter, generate_latest
+from prometheus_client import CONTENT_TYPE_LATEST
+from flask import Response
 
-def create_file():
-    data = os.urandom(1024)  # 1KB random binary
-    with open("file.txt", "wb") as f:
-        f.write(data)
-    checksum = hashlib.md5(data).hexdigest()
-    return data, checksum
+app = Flask(__name__)
 
-def main():
-    s = socket.socket()
-    s.bind(("0.0.0.0", 5000))
-    s.listen(1)
-    print("Server is waiting for connection...")
-    conn, addr = s.accept()
-    print(f"Connected to {addr}")
+# Define a Prometheus counter metric
+REQUEST_COUNT = Counter('http_requests_total', 'Total HTTP Requests')
 
-    data, checksum = create_file()
-    conn.sendall(data + b"::" + checksum.encode())
-    conn.close()
-    print("File and checksum sent.")
+@app.route('/')
+def home():
+    REQUEST_COUNT.inc()
+    return "Hello from Server!"
+
+@app.route('/metrics')
+def metrics():
+    return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
 
 if __name__ == "__main__":
-    main()
+    app.run(host='0.0.0.0', port=8000)
