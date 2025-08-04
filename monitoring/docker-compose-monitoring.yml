@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3"
 
 services:
   prometheus:
@@ -8,16 +8,27 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    networks:
+      - monitoring
 
   grafana:
     image: grafana/grafana
     container_name: grafana
     ports:
       - "3000:3000"
-    volumes:
-      - grafana-storage:/var/lib/grafana
-    depends_on:
-      - prometheus
+    networks:
+      - monitoring
 
-volumes:
-  grafana-storage:
+  server:
+    build:
+      context: ../server
+    container_name: devops_server
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
